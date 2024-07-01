@@ -12,6 +12,6 @@ function validateForm(event){
     } else {
         localStorage.setItem("firstname", x);
         console.log("inStorage : " + localStorage.getItem("firstname"));
-        window.location.href = "../item.html";
+        window.location.href = "../tasks.html";
     }
 }
