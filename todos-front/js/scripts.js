@@ -12,6 +12,9 @@ window.addEventListener('DOMContentLoaded', event => {
     // Navbar shrink function
     var navbarShrink = function () {
         const navbarCollapsible = document.body.querySelector('#mainNav');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const nav = document.querySelector('.navbar');
+
         if (!navbarCollapsible) {
             return;
         }
@@ -19,6 +22,9 @@ window.addEventListener('DOMContentLoaded', event => {
             navbarCollapsible.classList.remove('navbar-shrink')
         } else {
             navbarCollapsible.classList.add('navbar-shrink')
+            nav.style.marginTop = '0';
+            nav.style.transition = "all 0.5s";
+            welcomeMessage.display='none';
         }
 
     };
