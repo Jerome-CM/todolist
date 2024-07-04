@@ -1,11 +1,23 @@
+let taskUpdated = localStorage.getItem('taskUpdated');
+
+if (taskUpdated) {
+    let welcomeMessage = document.getElementById('welcomeMessage');
+    let nav = document.querySelector('.navbar');
+
+    nav.style.marginTop = '56px';
+
+    welcomeMessage.classList.add('alert', 'alert-success');
+
+    welcomeMessage.innerHTML = taskUpdated;
+    localStorage.removeItem('taskUpdated');
+}
+
 const requestForAPI = "http://localhost:3000/todos/";
+const id = getIdInUrl(window.location.href);
+
  async function getTask() {
 
      /*** Get a task ***/
-     const currentUrl = window.location.href;
-     const url = new URL(currentUrl);
-     const params = new URLSearchParams(url.search);
-     const id = params.get('id');
 
      let app = document.getElementById('app');
      const reponse = await fetch(requestForAPI + id);
@@ -46,16 +58,28 @@ const requestForAPI = "http://localhost:3000/todos/";
 
              // Add buttons
              // Status
-             const buttonStatus = document.createElement('button');
-             buttonStatus.className = 'btn btn-primary mr-2 btn-warning';
+             const buttonStatus = document.createElement('a');
+             buttonStatus.className = element.is_complete ? 'btn btn-primary mr-2' : 'btn btn-primary mr-2 btn-warning';
              buttonStatus.textContent = element.is_complete ? "Re-open" : "Close this task";
+             buttonStatus.href = "?id=" + element.id;
              buttonsDiv.appendChild(buttonStatus);
 
+             buttonStatus.addEventListener('click', function(event) {
+                 event.preventDefault(); // Empêche l'action par défaut du lien
+                 updateTask(); // Appelle la fonction pour effectuer la requête PUT
+             });
+
              // Delete
-             const buttonDelete = document.createElement('button');
+             const buttonDelete = document.createElement('a');
              buttonDelete.className = 'btn btn-primary mr-2 btn-danger';
              buttonDelete.textContent = "Delete";
+             buttonDelete.href = "?id=" + element.id;
              buttonsDiv.appendChild(buttonDelete);
+
+             buttonDelete.addEventListener('click', function(event) {
+                 event.preventDefault(); // Empêche l'action par défaut du lien
+                 deleteTask(); // Appelle la fonction pour effectuer la requête PUT
+             });
 
              /* Inject buttons div in card */
              card.appendChild(buttonsDiv);
@@ -65,6 +89,76 @@ const requestForAPI = "http://localhost:3000/todos/";
          }
      });
  }
+
+ async function updateTask(){
+
+     /*** Get a task ***/
+     const reponse = await fetch(requestForAPI + id);
+     const rep = await reponse.json().then((element) => {
+
+     if (reponse) {
+
+     console.log(reponse);
+         let updatedData;
+
+        if(element.is_complete){
+            updatedData = { is_complete: false };
+        } else {
+            updatedData = { is_complete: true };
+        }
+
+
+         fetch(requestForAPI + id, {
+             method: 'PUT',
+             headers: {
+                 'Content-Type': 'application/json',
+             },
+             body: JSON.stringify(updatedData)
+         })
+             .then(response => {
+                 if (!response.ok) {
+                     throw new Error('Network response was not ok ' + response.statusText);
+                 }
+                 return response.json();
+             })
+             .then(data => {
+                 localStorage.setItem('taskUpdated', 'Task updated on back-end');
+                 window.location.href = "../todos-front/item.html?id=" + id;
+             })
+             .catch(error => {
+                 console.error('There was a problem with the fetch operation:', error);
+             });
+     }
+ })}
+
+async function deleteTask(){
+
+    /*** Get a task ***/
+    const reponse = await fetch(requestForAPI + id);
+    const rep = await reponse.json().then((element) => {
+
+        if (reponse) {
+
+            fetch(requestForAPI + id, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    } else {
+                        localStorage.setItem('taskDeleted', 'Task delete on back-end');
+                        window.location.href = "../todos-front/tasks.html";
+                    }
+                    return response.json();
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+        }
+    })}
 
 function formatDate(dateString) {
     // Parse date
@@ -80,6 +174,11 @@ function formatDate(dateString) {
 
     // Return date formated
     return month + "/" + day + "/" + year + " at " + hours + ":" + minutes + ":" + seconds;
+}
+function getIdInUrl(url){
+    const urlFind = new URL(url);
+    const params = new URLSearchParams(urlFind.search);
+    return params.get('id');
 }
 
 getTask();
