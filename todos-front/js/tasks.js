@@ -1,8 +1,9 @@
 /*** SayWelcome ***/
 let firstname = localStorage.getItem("firstname");
 let newTasksSaved = localStorage.getItem('newTask');
+let taskDeleted = localStorage.getItem('taskDeleted');
 
-if (firstname || newTasksSaved) {
+if (firstname || newTasksSaved || taskDeleted) {
     let welcomeMessage = document.getElementById('welcomeMessage');
     let nav = document.querySelector('.navbar');
 
@@ -12,11 +13,14 @@ if (firstname || newTasksSaved) {
     if(firstname){
         welcomeMessage.innerHTML = "Welcome " + firstname;
     } else if(newTasksSaved) {
-        welcomeMessage.innerHTML = "Task saved";
+        welcomeMessage.innerHTML = newTasksSaved;
+    } else if(taskDeleted){
+        welcomeMessage.innerHTML = taskDeleted;
     }
 
     localStorage.removeItem('firstname');
     localStorage.removeItem('newTask');
+    localStorage.removeItem('taskDeleted');
 }
 
 /*** Get the tasks ***/
@@ -46,6 +50,9 @@ function getAllTasks(){
 
                     /* Add className */
                     divCard.classList.add('card', 'mt-3');
+                    if(task.is_complete){
+                        divCard.classList.add('border', 'border-light');
+                    }
                     divBody.classList.add('card-body');
                     h5.classList.add('card-title');
                     a.classList.add('btn', 'btn-primary');
@@ -54,7 +61,7 @@ function getAllTasks(){
                     h5.innerHTML = task.text;
 
                     a.href = 'item.html?id=' + task.id;
-                    a.innerHTML = 'Voir le détail';
+                    a.innerHTML = 'See more';
 
                     /* Create DOM elements */
 
@@ -64,7 +71,7 @@ function getAllTasks(){
                     /* If tache completed, add badge */
                     if(task.is_complete){
                         let span = document.createElement('span');
-                        span.className = 'btn rounded bg-light text-black m-2 p2';
+                        span.className = 'btn rounded bg-light btn-outline-secondary text-black m-2 p2';
                         span.innerHTML = "Task complete"
                         divBody.appendChild(span);
                     }
@@ -111,7 +118,7 @@ function postNewTask(event){
             })
             .then(data => {
                 localStorage.setItem('newTask', 'New task saved on back-end');
-                window.location.href = "../tasks.html";
+                window.location.href = "../todos-front/tasks.html";
             })
             .catch(error => {
                 console.error('There was a problem with the fetch operation:', error);
