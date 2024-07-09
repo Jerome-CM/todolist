@@ -43,19 +43,26 @@ function getAllTasks(){
                     }
 
                     /* Init DOM element */
+                    app.classList.add('d-flex', 'flex-wrap', 'justify-content-around');
                     let divCard = document.createElement('div');
                     let divBody = document.createElement('div');
                     let h5 = document.createElement('h5');
                     let a = document.createElement('a');
 
                     /* Add className */
-                    divCard.classList.add('card', 'mt-3');
-                    if(task.is_complete){
-                        divCard.classList.add('border', 'border-light');
-                    }
+                    divCard.classList.add('card', 'mt-3', 'col-5','border');
                     divBody.classList.add('card-body');
-                    h5.classList.add('card-title');
-                    a.classList.add('btn', 'btn-primary');
+
+
+                    if(task.is_complete){
+                        divCard.classList.add('border-light');
+                        h5.classList.add('card-title', 'text-muted');
+                        a.classList.add('btn', 'bg-light');
+                    } else {
+                        divCard.classList.add('border-dark','bg-light');
+                        h5.classList.add('card-title');
+                        a.classList.add('btn', 'btn-primary');
+                    }
 
                     /* Add text and link */
                     h5.innerHTML = task.text;
