@@ -2,6 +2,7 @@
 let firstname = localStorage.getItem("firstname");
 let newTasksSaved = localStorage.getItem('newTask');
 let taskDeleted = localStorage.getItem('taskDeleted');
+let taskError = localStorage.getItem('taskError');
 
 if (firstname || newTasksSaved || taskDeleted) {
     let welcomeMessage = document.getElementById('welcomeMessage');
@@ -21,6 +22,16 @@ if (firstname || newTasksSaved || taskDeleted) {
     localStorage.removeItem('firstname');
     localStorage.removeItem('newTask');
     localStorage.removeItem('taskDeleted');
+} else if (taskError){
+    let welcomeMessage = document.getElementById('welcomeMessage');
+    let nav = document.querySelector('.navbar');
+
+    nav.style.marginTop = '56px';
+
+    welcomeMessage.classList.add('alert', 'alert-danger');
+
+    welcomeMessage.innerHTML = taskError;
+    localStorage.removeItem('taskError');
 }
 
 /*** Get the tasks ***/
@@ -97,16 +108,22 @@ function postNewTask(event){
     event.preventDefault();
 
     let taskSubmit = document.forms["form"]["task"].value;
+    let tagsSubmit = document.forms["form"]["tags"].value;
 
-    if (taskSubmit !== "") {
+    if (taskSubmit !== "" && tagsSubmit !== "") {
         let lastIdToBackEnd = parseInt(localStorage.getItem("lastIdTask")) + 1;
+
+        /** Create tags with good format for API */
+        let tagsSplited = tagsSubmit.split(',');
+
         let task = {
             id: lastIdToBackEnd,
             text: taskSubmit,
             created_at: new Date(),
-            Tags: [],
+            Tags: formatTags(tagsSplited),
             is_complete: false
         }
+
         console.log(task);
 
         /* POST new task */
@@ -130,7 +147,13 @@ function postNewTask(event){
             .catch(error => {
                 console.error('There was a problem with the fetch operation:', error);
             });
+    } else {
+        localStorage.setItem('taskError', "Name or tags is empty");
+        window.location.href = "../todos-front/tasks.html";
     }
 }
 
 getAllTasks();
+function formatTags(tagsSplited){
+    return tagsSplited.map(tag => tag.trim()).filter(tag => tag.length > 0);
+}
